@@ -1,22 +1,69 @@
-#include "scheduler.hpp"
 #include <iostream>
+#include <memory>
+#include "Scheduler.h"
+
+using namespace std;
+
+void displayMenu() {
+    cout << "\nEnergy-Efficient CPU Scheduler\n";
+    cout << "==============================\n";
+    cout << "1. Add Process\n";
+    cout << "2. Start Scheduling\n";
+    cout << "3. Exit\n";
+    cout << "Choice: ";
+}
 
 int main() {
-    EnergyEfficientScheduler scheduler;
+    Scheduler scheduler(2); // Time quantum = 2
+    int choice;
+    int pidCounter = 1;
 
-    // Create some test processes with different priorities and burst times
-    // Parameters: (pid, burst_time, arrival_time, priority)
-    scheduler.addProcess(std::make_shared<Process>(1, 5.0, 0.0, 4));   // High priority
-    scheduler.addProcess(std::make_shared<Process>(2, 3.0, 1.0, 2));   // Medium priority
-    scheduler.addProcess(std::make_shared<Process>(3, 8.0, 2.0, 1));   // Low priority
-    scheduler.addProcess(std::make_shared<Process>(4, 2.0, 3.0, 3));   // Medium priority
+    while (true) {
+        displayMenu();
+        cin >> choice;
 
-    std::cout << "Starting energy-efficient CPU scheduler simulation...\n\n";
-    
-    scheduler.run();
+        if (choice == 1) {
+            string name;
+            int priority, burst, arrival;
 
-    std::cout << "\nSimulation completed!\n";
-    std::cout << "Total energy consumption: " << scheduler.getTotalEnergyConsumption() << " watts\n";
+            cout << "\nEnter process details:\n";
+            cout << "Name: ";
+            cin >> name;
+            
+            cout << "Priority (1=High, 2=Normal, 3=Low): ";
+            cin >> priority;
+            while (priority < 1 || priority > 3) {
+                cout << "Invalid priority. Please enter 1, 2, or 3: ";
+                cin >> priority;
+            }
+
+            cout << "Burst Time: ";
+            cin >> burst;
+            
+            cout << "Arrival Time: ";
+            cin >> arrival;
+
+            auto process = make_shared<Process>(pidCounter++, name, priority, burst, arrival);
+            scheduler.addProcess(process);
+            cout << "\nProcess added successfully!\n";
+        }
+        else if (choice == 2) {
+            if (scheduler.getProcessCount() == 0) {
+                cout << "\nNo processes to schedule. Please add processes first.\n";
+                continue;
+            }
+            cout << "\nStarting CPU Scheduling...\n";
+            scheduler.run();
+            break;
+        }
+        else if (choice == 3) {
+            cout << "\nExiting...\n";
+            break;
+        }
+        else {
+            cout << "\nInvalid choice. Please try again.\n";
+        }
+    }
 
     return 0;
-}
+} 
